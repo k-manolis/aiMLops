@@ -13,12 +13,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    # Define date variable
+    - name: Set Date Variable
+      id: set_date
+      run: echo "DATE_TAG=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
     
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: docker build . --file Dockerfile --tag my-image-name:${{ env.DATE_TAG }}
 
     - name: Set up Docker container for testing
-      run: docker run -d --name test-container my-image-name:$(date +%s)
+      run: docker run -d --name test-container my-image-name:${{ env.DATE_TAG }}
 
     - name: Install dependencies inside Docker container
       run: docker exec test-container pip install -r /app/requirements.txt
