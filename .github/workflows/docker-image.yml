@@ -9,10 +9,23 @@ on:
 jobs:
 
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+    
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+
+    - name: Set up Docker container for testing
+      run: docker run -d --name test-container my-image-name:$(date +%s)
+
+    - name: Install dependencies inside Docker container
+      run: docker exec test-container pip install -r /app/requirements.txt
+
+    - name: Run pytest inside the Docker container
+      run: docker exec test-container pytest test_api.py
+
+    - name: Clean up the Docker container
+      run: docker rm -f test-container
+
